@@ -9,7 +9,8 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    public function register(Request $request) {
+    public function register(Request $request)
+    {
         // Validate input
         $request->validate([
             'email' => 'required|email',
@@ -27,7 +28,7 @@ class AuthController extends Controller
 
         // Prevent non-alphanumeric username
         if (ctype_alnum($username)) {
-            // Create user
+            // Create user and login them
             User::create([
                 'id' => Str::uuid(),
                 'username' => $username,
@@ -51,5 +52,63 @@ class AuthController extends Controller
         }
 
         return $this->jsonResponse($output, $code);
+    }
+
+    public function login(Request $request) {
+        // Validate input
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        $output = [];
+        $code = 200;
+
+        // Put request input into variables
+        $email = $request->input('email');
+        $password = $request->input('password');
+
+        // Get the user based on email
+        $user = User::where('email', $email)->first();
+
+        // Return error if email or password is incorrect
+        if (!$user) {
+            return $this->jsonResponse(['message' => 'Email tidak ditemukan'], 404);
+        }
+        if (!password_verify($password, $user->password)) {
+            return $this->jsonResponse(['message' => 'Password salah'], 401);
+        }
+        // Return error if user already logged in
+        if ($user->remember_token) {
+            return $this->jsonResponse(['message' => 'User ini sudah login'], 401);
+        }
+
+        // Generate new login token
+        $user->remember_token = md5($email.$password.$user->username.Carbon::now());
+        $user->save();
+
+        return $this->jsonResponse(['message' => 'Login berhasil', 'user' => $user], 200);
+    }
+
+    public function logout(Request $request)
+    {
+        $bearerToken = $request->bearerToken();
+        $user = User::where('remember_token', $bearerToken)->update([
+            'remember_token' => null
+        ]);
+        if (!$user) {
+            return $this->jsonResponse(['message' => 'Logout gagal'], 400);
+        }
+        return $this->jsonResponse(['message' => 'Logout berhasil'], 200);
+    }
+
+    public function verifyAuth(Request $request)
+    {
+        $bearerToken = $request->bearerToken();
+        $user = User::where('remember_token', $bearerToken)->firstOrFail();
+        if (!$user) {
+            return $this->jsonResponse(['message' => 'Token salah'], 400);
+        }
+        return $this->jsonResponse(['message' => 'Token terverifikasi', 'user' => $user], 200);
     }
 }
