@@ -55,29 +55,6 @@ class AuthTest extends TestCase
     // Edge Cases
     public function test_register_edge_case()
     {
-        // Check for the same username
-        // $response = $this->withHeaders([
-        //     'Accept' => 'application/json',
-        // ])->post($this->baseUrl.'/auth/register', [
-        //     'username' => 'testUser123',
-        //     'email' => 'testuser@example.com',
-        //     'password' => 'securePassword123'
-        // ]);
-
-        // $this->assertEquals(200, $response->getStatusCode());
-        // $this->assertStringContainsString('Register berhasil', $response->getContent());
-
-        // $response = $this->withHeaders([
-        //     'Accept' => 'application/json',
-        // ])->post($this->baseUrl.'/auth/register', [
-        //     'username' => 'testUser123',
-        //     'email' => 'testuser@example.com',
-        //     'password' => 'securePassword123'
-        // ]);
-
-        // $this->assertEquals(400, $response->getStatusCode());
-        // $this->assertStringContainsString('Username sudah digunakan', $response->getContent());
-
         // Check for non-alphanumeric username
         $response = $this->withHeaders([
             'Accept' => 'application/json',
