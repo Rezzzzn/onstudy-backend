@@ -38,13 +38,13 @@ class AuthController extends Controller
                 'remember_token' => md5($email.$password.$username.Carbon::now())
             ]);
             $user = User::where('email', $email)->firstOrFail();
-            $output[] = [
+            $output = [
                 'message' => 'Register berhasil',
                 'user' => $user
             ];
         } else {
             // Returns error if username is not alphanumeric
-            $output[] = [
+            $output = [
                 'message' => 'Username hanya boleh memiliki karakter alphanumerik'
             ];
             $code = 400;
@@ -61,9 +61,6 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        $output = [];
-        $code = 200;
-
         // Put request input into variables
         $email = $request->input('email');
         $password = $request->input('password');
@@ -78,14 +75,12 @@ class AuthController extends Controller
         if (!password_verify($password, $user->password)) {
             return $this->jsonResponse(['message' => 'Password salah'], 401);
         }
-        // Return error if user already logged in
-        if ($user->remember_token) {
-            return $this->jsonResponse(['message' => 'User ini sudah login'], 401);
+        // Generate new token if user is not logged in
+        if (!$user->remember_token) {
+            // Generate new login token
+            $user->remember_token = md5($email.$password.$user->username.Carbon::now());
+            $user->save();
         }
-
-        // Generate new login token
-        $user->remember_token = md5($email.$password.$user->username.Carbon::now());
-        $user->save();
 
         return $this->jsonResponse(['message' => 'Login berhasil', 'user' => $user], 200);
     }
