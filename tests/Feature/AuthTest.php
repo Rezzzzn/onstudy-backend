@@ -130,25 +130,26 @@ class AuthTest extends TestCase
         $this->assertStringContainsString('Password salah', $response->getContent());
 
         // Check for already logged in user
-        // Login
-        $response = $this->withHeaders([
-            'Accept' => 'application/json',
-        ])->post($this->baseUrl.'/auth/login', [
-            'email' => 'testuser@example.com',
-            'password' => 'securePassword123'
-        ]);
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertStringContainsString('Login berhasil', $response->getContent());
-        $token = json_decode($registerResponse->getContent())[0]->user->remember_token;
-        // Verify token
-        $response = $this->withHeaders([
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer '. $token
-        ])->post($this->baseUrl.'/auth/login', [
-            'email' => 'testuser@example.com',
-            'password' => 'securePassword123'
-        ]);
-        $this->assertEquals(401, $response->getStatusCode());
-        $this->assertStringContainsString('User ini sudah login', $response->getContent());
+        // DEPRECATED: The application flow allows user in various devices to log in. This test is obsolete.
+        // // Login
+        // $response = $this->withHeaders([
+        //     'Accept' => 'application/json',
+        // ])->post($this->baseUrl.'/auth/login', [
+        //     'email' => 'testuser@example.com',
+        //     'password' => 'securePassword123'
+        // ]);
+        // $this->assertEquals(200, $response->getStatusCode());
+        // $this->assertStringContainsString('Login berhasil', $response->getContent());
+        // $token = json_decode($registerResponse->getContent())[0]->user->remember_token;
+        // // Re login
+        // $response = $this->withHeaders([
+        //     'Accept' => 'application/json',
+        //     'Authorization' => 'Bearer '. $token
+        // ])->post($this->baseUrl.'/auth/login', [
+        //     'email' => 'testuser@example.com',
+        //     'password' => 'securePassword123'
+        // ]);
+        // $this->assertEquals(401, $response->getStatusCode());
+        // $this->assertStringContainsString('User ini sudah login', $response->getContent());
     }
 }
