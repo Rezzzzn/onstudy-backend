@@ -18,11 +18,12 @@ class AuthTest extends TestCase
         ])->post($this->baseUrl.'/auth/register', [
             'username' => 'testUser123',
             'email' => 'validUser@example.com',
-            'password' => 'securePassword123'
+            'password' => 'securePassword123',
+            'method' => 'Email'
         ]);
         $this->assertEquals(200, $registerResponse->getStatusCode());
         $this->assertStringContainsString('Register berhasil', $registerResponse->getContent());
-        $token = json_decode($registerResponse->getContent())[0]->user->remember_token;
+        $token = json_decode($registerResponse->getContent())->user->remember_token;
 
         // Logout the user
         $logoutResponse = $this->withHeaders([
@@ -37,11 +38,12 @@ class AuthTest extends TestCase
             'Accept' => 'application/json',
         ])->post($this->baseUrl.'/auth/login', [
             'email' => 'validUser@example.com',
-            'password' => 'securePassword123'
+            'password' => 'securePassword123',
+            'method' => 'Email'
         ]);
         $this->assertEquals(200, $loginResponse->getStatusCode());
         $this->assertStringContainsString('Login berhasil', $loginResponse->getContent());
-        $token = json_decode($registerResponse->getContent())[0]->user->remember_token;
+        $token = json_decode($registerResponse->getContent())->user->remember_token;
 
         // Verify the user's authentication
         $verifyResponse = $this->withHeaders([
@@ -55,17 +57,18 @@ class AuthTest extends TestCase
     // Edge Cases
     public function test_register_edge_case()
     {
-        // Check for non-alphanumeric username
-        $response = $this->withHeaders([
-            'Accept' => 'application/json',
-        ])->post($this->baseUrl.'/auth/register', [
-            'username' => 'invalidUser!@#',
-            'email' => 'invaliduser@example.com',
-            'password' => 'securePassword123'
-        ]);
+        // // Check for non-alphanumeric username
+        // DEPRECATED: User is now allowed to use non-alphanumeric characters
+        // $response = $this->withHeaders([
+        //     'Accept' => 'application/json',
+        // ])->post($this->baseUrl.'/auth/register', [
+        //     'username' => 'invalidUser!@#',
+        //     'email' => 'invaliduser@example.com',
+        //     'password' => 'securePassword123'
+        // ]);
 
-        $this->assertEquals(400, $response->getStatusCode());
-        $this->assertStringContainsString('Username hanya boleh memiliki karakter alphanumerik', $response->getContent());
+        // $this->assertEquals(400, $response->getStatusCode());
+        // $this->assertStringContainsString('Username hanya boleh memiliki karakter alphanumerik', $response->getContent());
 
         // Check for missing required fields
         $response = $this->withHeaders([
@@ -94,9 +97,9 @@ class AuthTest extends TestCase
             'Accept' => 'application/json',
         ])->post($this->baseUrl.'/auth/login', [
             'email' => 'nonexistentuser@example.com',
-            'password' => 'securePassword123'
+            'password' => 'securePassword123',
+            'method' => 'Email'
         ]);
-        Log::info($response->getContent());
         $this->assertEquals(404, $response->getStatusCode());
         $this->assertStringContainsString('Email tidak ditemukan', $response->getContent());
 
@@ -107,11 +110,12 @@ class AuthTest extends TestCase
         ])->post($this->baseUrl.'/auth/register', [
             'username' => 'testUser123',
             'email' => 'testuser@example.com',
-            'password' => 'securePassword123'
+            'password' => 'securePassword123',
+            'method' => 'Email'
         ]);
         $this->assertEquals(200, $registerResponse->getStatusCode());
         $this->assertStringContainsString('Register berhasil', $registerResponse->getContent());
-        $token = json_decode($registerResponse->getContent())[0]->user->remember_token;
+        $token = json_decode($registerResponse->getContent())->user->remember_token;
         // Logout
         $logoutResponse = $this->withHeaders([
             'Accept' => 'application/json',
@@ -124,7 +128,8 @@ class AuthTest extends TestCase
             'Accept' => 'application/json',
         ])->post($this->baseUrl.'/auth/login', [
             'email' => 'testuser@example.com',
-            'password' => 'wrongPassword123'
+            'password' => 'wrongPassword123',
+            'method' => 'Email'
         ]);
         $this->assertEquals(401, $response->getStatusCode());
         $this->assertStringContainsString('Password salah', $response->getContent());
@@ -140,7 +145,7 @@ class AuthTest extends TestCase
         // ]);
         // $this->assertEquals(200, $response->getStatusCode());
         // $this->assertStringContainsString('Login berhasil', $response->getContent());
-        // $token = json_decode($registerResponse->getContent())[0]->user->remember_token;
+        // $token = json_decode($registerResponse->getContent())->user->remember_token;
         // // Re login
         // $response = $this->withHeaders([
         //     'Accept' => 'application/json',
