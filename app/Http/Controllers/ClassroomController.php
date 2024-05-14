@@ -4,79 +4,71 @@ namespace App\Http\Controllers;
 
 use App\Models\Classes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
-
-class ClassesController extends Controller
+class ClassroomController extends Controller
 {
     // Retrieve all rows from the 'classes' table
     public function read(Request $request)
     {
         $classes = Classes::all();
-        return response()->json($classes);
+        return $this->jsonResponse(['message' => 'Classes retrieved successfully', 'classes' => $classes]);
     }
 
     // Retrieve a single row by ID from the 'classes' table
     public function readById(Request $request, $id)
     {
-        $class = Classes::find($id);
+        $class = Classes::where('id', $id)->first();
         if ($class) {
-            return response()->json($class);
+            return $this->jsonResponse(['message' => 'Class retrieved successfully', 'class' => $class]);
         } else {
-            return response()->json(['message' => 'Class not found'], );
+            return $this->jsonResponse(['message' => 'Class not found'], 404);
         }
     }
 
     // Insert a new row into the 'classes' table
     public function create(Request $request)
     {
+        // Validate input
         $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            // Add other validation rules as necessary
+            'title' => 'required',
+            'subject' => 'required|in:Sains,Matematika,Bahasa,Teknologi,Sosial,Seni',
         ]);
 
-        $class = new Classes();
-        $class->name = $request->input('name');
-        $class->description = $request->input('description');
-        // Set other fields as necessary
+        Classes::create([
+            'id' => Str::uuid(),
+            'title' => $request->input('title'),
+            'description' => $request->input('description'),
+            'subject' => $request->input('subject'),
+            'photo' => $request->input('photo'),
+        ]);
 
-        $class->save();
-
-        return response()->json($class, 201);
+        return $this->jsonResponse(['message' => 'Class created successfully'], 201);
     }
 
     // Update a row by ID in the 'classes' table
     public function update(Request $request, $id)
     {
+        // Validate input
         $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            // Add other validation rules as necessary
+            'title' => 'required',
+            'subject' => 'required|in:Sains,Matematika,Bahasa,Teknologi,Sosial,Seni',
         ]);
 
-        $class = Classes::find($id);
-        if ($class) {
-            $class->name = $request->input('name');
-            $class->description = $request->input('description');
-            // Update other fields as necessary
+        Classes::where('id', $id)->update([
+            'title' => $request->input('title'),
+            'description' => $request->input('description'),
+            'subject' => $request->input('subject'),
+            'photo' => $request->input('photo'),
+        ]);
 
-            $class->save();
-
-            return response()->json($class);
-        } else {
-            return response()->json(['message' => 'Class not found'], 404);
-        }
+        return $this->jsonResponse(['message' => 'Class updated successfully']);
     }
 
     // Delete a row by ID in the 'classes' table
     public function delete(Request $request, $id)
     {
-        $class = Classes::find($id);
-        if ($class) {
-            $class->delete();
-            return response()->json(['message' => 'Class deleted successfully']);
-        } else {
-            return response()->json(['message' => 'Class not found'], 404);
-        }
+        Classes::where('id', $id)->delete();
+        return $this->jsonResponse(['message' => 'Class deleted successfully']);
     }
 }
