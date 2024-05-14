@@ -21,7 +21,7 @@ class ClassroomController extends Controller
         if ($class) {
             return response()->json($class);
         } else {
-            return response()->json(['message' => 'Class not found'], 404);
+            return response()->json(['message' => 'Class not found'], );
         }
     }
 
