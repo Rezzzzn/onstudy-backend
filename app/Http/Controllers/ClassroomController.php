@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Classes;
 use Illuminate\Http\Request;
 
 
-class ClassroomController extends Controller
+class ClassesController extends Controller
 {
     // Retrieve all rows from the 'classes' table
     public function read(Request $request)
     {
-        $classes = Classroom::all();
+        $classes = Classes::all();
         return response()->json($classes);
     }
 
     // Retrieve a single row by ID from the 'classes' table
     public function readById(Request $request, $id)
     {
-        $class = Classroom::find($id);
+        $class = Classes::find($id);
         if ($class) {
             return response()->json($class);
         } else {
@@ -34,7 +35,7 @@ class ClassroomController extends Controller
             // Add other validation rules as necessary
         ]);
 
-        $class = new Classroom();
+        $class = new Classes();
         $class->name = $request->input('name');
         $class->description = $request->input('description');
         // Set other fields as necessary
@@ -53,7 +54,7 @@ class ClassroomController extends Controller
             // Add other validation rules as necessary
         ]);
 
-        $class = Classroom::find($id);
+        $class = Classes::find($id);
         if ($class) {
             $class->name = $request->input('name');
             $class->description = $request->input('description');
@@ -70,7 +71,7 @@ class ClassroomController extends Controller
     // Delete a row by ID in the 'classes' table
     public function delete(Request $request, $id)
     {
-        $class = Classroom::find($id);
+        $class = Classes::find($id);
         if ($class) {
             $class->delete();
             return response()->json(['message' => 'Class deleted successfully']);
