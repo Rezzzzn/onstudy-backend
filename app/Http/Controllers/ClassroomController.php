@@ -4,26 +4,78 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+
 class ClassroomController extends Controller
 {
+    // Retrieve all rows from the 'classes' table
     public function read(Request $request)
     {
-        //TODO: ambil semua data class di tabel classes
+        $classes = Classroom::all();
+        return response()->json($classes);
     }
-    public function readById(Request $request)
+
+    // Retrieve a single row by ID from the 'classes' table
+    public function readById(Request $request, $id)
     {
-        //TODO: ambil satu row berdasarkan id di tabel classes
+        $class = Classroom::find($id);
+        if ($class) {
+            return response()->json($class);
+        } else {
+            return response()->json(['message' => 'Class not found'], 404);
+        }
     }
+
+    // Insert a new row into the 'classes' table
     public function create(Request $request)
     {
-        //TODO: insert data ke tabel classes
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            // Add other validation rules as necessary
+        ]);
+
+        $class = new Classroom();
+        $class->name = $request->input('name');
+        $class->description = $request->input('description');
+        // Set other fields as necessary
+
+        $class->save();
+
+        return response()->json($class, 201);
     }
-    public function update(Request $request)
+
+    // Update a row by ID in the 'classes' table
+    public function update(Request $request, $id)
     {
-        //TODO: ambil satu row berdasarkan id, edit datanya, lalu update ke tabel classes
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            // Add other validation rules as necessary
+        ]);
+
+        $class = Classroom::find($id);
+        if ($class) {
+            $class->name = $request->input('name');
+            $class->description = $request->input('description');
+            // Update other fields as necessary
+
+            $class->save();
+
+            return response()->json($class);
+        } else {
+            return response()->json(['message' => 'Class not found'], 404);
+        }
     }
-    public function delete(Request $request)
+
+    // Delete a row by ID in the 'classes' table
+    public function delete(Request $request, $id)
     {
-        //TODO: ambil satu row berdasarkan id, delete data itu di tabel classes
+        $class = Classroom::find($id);
+        if ($class) {
+            $class->delete();
+            return response()->json(['message' => 'Class deleted successfully']);
+        } else {
+            return response()->json(['message' => 'Class not found'], 404);
+        }
     }
 }
