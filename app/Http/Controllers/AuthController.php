@@ -9,7 +9,6 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    // ngapain banh?
     public function register(Request $request)
     {
         // Validate input
