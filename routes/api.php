@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClassroomController;
+use App\Http\Controllers\UserController;
 // use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,3 +23,9 @@ Route::get('/v1/classrooms', [ClassroomController::class, 'read']);
 Route::get('/v1/classrooms/{id}', [ClassroomController::class, 'readById']);
 Route::put('/v1/classrooms/{id}', [ClassroomController::class, 'update']);
 Route::delete('/v1/classrooms/{id}', [ClassroomController::class, 'delete']);
+
+// User REST API
+Route::get('/v1/users', [UserController::class, 'read']);
+Route::get('/v1/users/{id}', [UserController::class, 'readById']);
+Route::put('/v1/users/{id}', [UserController::class, 'update']);
+Route::delete('/v1/users/{id}', [UserController::class, 'delete']);
