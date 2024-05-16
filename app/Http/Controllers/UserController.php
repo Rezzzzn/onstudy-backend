@@ -22,36 +22,26 @@ class UserController extends Controller
     {
         // Validate input
         $request->validate([
-            'email' => 'required|email',
             'username' => 'required',
-            'password' => 'required',
-            'institution' => 'required',
-            'banned' => 'required'
+            'institution' => 'required'
         ]);
 
         // Put request input into variables
-        $email = $request->input('email');
         $username = $request->input('username');
-        $password = $request->input('password');
         $institution = $request->input('institution');
-        $photo = $request->input('photo');
-        $banned = $request->input('banned');
 
         // Save user profile if it exists
-        if ($photo) {
-            $filePath = Storage::disk('local')->put('users', $photo);
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('public/users');
             User::where('id', $id)->update([
-                'photo' => $filePath
+                'photo' => basename($path)
             ]);
         }
 
         // Update user
         User::where('id', $id)->update([
-            'email' => $email,
             'username' => $username,
-            'password' => bcrypt($password),
             'institution' => $institution,
-            'banned' => $banned
         ]);
 
         return $this->jsonResponse(['message' => 'User diperbarui']);

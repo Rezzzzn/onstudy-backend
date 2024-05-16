@@ -38,7 +38,7 @@ class MaterialController extends Controller
         $deadline = $request->input('deadline');
 
         // Save file material
-        $filePath = Storage::disk('local')->put('materials', $file);
+        $filePath = Storage::put('materials', $file);
         // Check if file is saved properly
         $checkFile = Storage::exists($filePath);
         if (!$checkFile) {

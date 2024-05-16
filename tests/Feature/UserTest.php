@@ -1,24 +1,26 @@
 <?php
 
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class UserTest extends TestCase
 {
+    private $faker;
     protected function setUp(): void
     {
+        $this->faker = Faker\Factory::create();
         parent::setUp();
     }
 
     private function register_new_user()
     {
         // Register new user
-        $faker = Faker\Factory::create();
         $registerResponse = $this->withHeaders([
             'Accept' => 'application/json',
         ])->post($this->baseUrl.'/auth/register', [
-            'email' => $faker->unique()->safeEmail,
-            'username' => $faker->userName,
-            'password' => $faker->password,
+            'email' => $this->faker->unique()->safeEmail,
+            'username' => $this->faker->userName,
+            'password' => $this->faker->password,
             'method' => 'Email'
         ]);
 
@@ -48,12 +50,10 @@ class UserTest extends TestCase
     {
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-        ])->put($this->baseUrl.'/users/'.$this->register_new_user(), [
-            'email' => 'testuserapi@test',
-            'username' => 'testuserapi',
-            'password' => 'test',
-            'institution' => 'School',
-            'banned' => false,
+        ])->post($this->baseUrl.'/users/'.$this->register_new_user(), [
+            'username' => $this->faker->userName,
+            'institution' => $this->faker->word,
+            // 'photo' => Storage::get('penguin.jpg')
             'photo' => null
         ]);
 
