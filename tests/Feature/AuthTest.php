@@ -17,7 +17,7 @@ class AuthTest extends TestCase
             'Accept' => 'application/json',
         ])->post($this->baseUrl.'/auth/register', [
             'username' => 'testUser123',
-            'email' => 'validUser@example.com',
+            'email' => 'validuser@example.com',
             'password' => 'securePassword123',
             'method' => 'Email'
         ]);
@@ -37,7 +37,7 @@ class AuthTest extends TestCase
         $loginResponse = $this->withHeaders([
             'Accept' => 'application/json',
         ])->post($this->baseUrl.'/auth/login', [
-            'email' => 'validUser@example.com',
+            'email' => 'validuser@example.com',
             'password' => 'securePassword123',
             'method' => 'Email'
         ]);

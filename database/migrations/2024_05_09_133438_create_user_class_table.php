@@ -17,8 +17,8 @@ return new class extends Migration
             $table->uuid('class_id');
             $table->enum('role', ['Teacher', 'Student']);
             $table->timestamps();
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('class_id')->references('id')->on('classes');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('class_id')->references('id')->on('classes')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
