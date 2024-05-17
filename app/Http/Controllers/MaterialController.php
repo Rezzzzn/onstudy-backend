@@ -11,12 +11,12 @@ class MaterialController extends Controller
 {
     public function read() {
         $materials = Material::all();
-        return $this->jsonResponse(['message' => 'Materials retrieved successfully', 'materials' => $materials]);
+        return $this->jsonResponse(['message' => 'Semua material ditemukan', 'materials' => $materials]);
     }
 
     public function readById($id) {
         $material = Material::where('id', $id)->first();
-        return $this->jsonResponse(['message' => 'Material retrieved successfully', 'material' => $material]);
+        return $this->jsonResponse(['message' => 'Material ditemukan', 'material' => $material]);
     }
 
     public function create(Request $request) {
@@ -25,7 +25,6 @@ class MaterialController extends Controller
             'class_id' => 'required',
             'title' => 'required',
             'description' => 'required',
-            'file' => 'required',
             'type' => 'required:in:assignment,material',
         ]);
 
@@ -33,30 +32,28 @@ class MaterialController extends Controller
         $classId = $request->input('class_id');
         $title = $request->input('title');
         $description = $request->input('description');
-        $file = $request->input('file');
         $type = $request->input('type');
         $deadline = $request->input('deadline');
 
         // Save file material
-        $filePath = Storage::put('materials', $file);
-        // Check if file is saved properly
-        $checkFile = Storage::exists($filePath);
-        if (!$checkFile) {
-            return $this->jsonResponse(['message' => 'File not saved'], 500);
+        $path = null;
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store('public/materials');
         }
 
         // Create material
+        $materialId = Str::uuid();
         Material::create([
-            'id' => Str::uuid(),
+            'id' => $materialId,
             'class_id' => $classId,
             'title' => $title,
             'description' => $description,
-            'file' => $filePath,
+            'file' => basename($path) || $path || null,
             'type' => $type,
             'deadline' => $deadline
         ]);
 
-        return $this->jsonResponse(['message' => 'Material created successfully'], 201);
+        return $this->jsonResponse(['message' => 'Material dibuat', 'material' => Material::where('id', $materialId)->first()], 201);
     }
 
     public function update(Request $request, $id)
@@ -66,7 +63,6 @@ class MaterialController extends Controller
             'class_id' => 'required',
             'title' => 'required',
             'description' => 'required',
-            'file' => 'required',
             'type' => 'required:in:assignment,material',
         ]);
 
@@ -74,21 +70,31 @@ class MaterialController extends Controller
         $classId = $request->input('class_id');
         $title = $request->input('title');
         $description = $request->input('description');
-        $file = $request->input('file');
         $type = $request->input('type');
         $deadline = $request->input('deadline');
 
         // Save file material
-        $filePath = Storage::disk('local')->put('materials', $file);
-        // Check if file is saved properly
-        $checkFile = Storage::exists($filePath);
-        if (!$checkFile) {
-            return $this->jsonResponse(['message' => 'File not saved'], 500);
+        $path = null;
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store('public/materials');
         }
+
+        Material::where('id', $id)->update([
+            'class_id' => $classId,
+            'title' => $title,
+            'description' => $description,
+            'file' => basename($path) || $path || null,
+            'type' => $type,
+            'deadline' => $deadline,
+        ]);
+
+        return $this->jsonResponse(['message' => 'Material diperbarui'], 200);
     }
 
-    public function delete()
-    {
 
+    public function delete($id)
+    {
+        Material::where('id', $id)->delete();
+        return $this->jsonResponse(['message' => 'Material dihapus'], 200);
     }
 }

@@ -1,20 +1,160 @@
 <?php
 
-namespace Tests\Feature;
-
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class ClassroomTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     */
-    public function test_example(): void
+    private $faker;
+    public function setUp(): void
     {
-        $response = $this->get('/');
+        $this->faker = Faker\Factory::create();
+        parent::setUp();
+    }
 
-        $response->assertStatus(200);
+    private function create_classroom()
+    {
+        $registerResponse = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post($this->baseUrl.'/auth/register', [
+            'email' => $this->faker->unique()->safeEmail,
+            'username' => $this->faker->userName,
+            'password' => $this->faker->password,
+            'method' => 'Email'
+        ]);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post($this->baseUrl.'/classrooms', [
+            'user_id' => json_decode($registerResponse->getContent())->user->id,
+            'title' => $this->faker->word,
+            'description' => $this->faker->sentence,
+            'subject' => $this->faker->randomElement(['Sains', 'Matematika', 'Bahasa', 'Teknologi', 'Sosial', 'Seni']),
+            'photo' => null
+        ]);
+
+        return json_decode($response->getContent())->classroom->id;
+    }
+
+    private function create_material()
+    {
+        $user = $this->withHeaders([
+            'Accept' => 'application/json'
+        ])->post($this->baseUrl.'/auth/register', [
+            'username' => $this->faker->name,
+            'email' => $this->faker->email,
+            'password' => $this->faker->password,
+            'method' => 'Email'
+        ]);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+        ])->post($this->baseUrl.'/materials', [
+            'user_id' => json_decode($user->getContent())->user->id,
+            'class_id' => $this->create_classroom(),
+            'title' => $this->faker->word,
+            'description' => $this->faker->sentence,
+            'file' => null,
+            // 'type' => $this->faker->randomElement(['assignment', 'material']),
+            'type' => 'material',
+            'deadline' => null
+        ]);
+
+        return json_decode($response->getContent())->material->id;
+    }
+
+    // Classroom happy path tests
+
+    public function test_get_classrooms()
+    {
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+        ])->get($this->baseUrl.'/classrooms');
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('classrooms', $response->getContent());
+    }
+
+    public function test_get_classroom_by_id()
+    {
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+        ])->get($this->baseUrl.'/classrooms/'.$this->create_classroom());
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('classroom', $response->getContent());
+    }
+
+    public function test_update_classroom()
+    {
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+        ])->post($this->baseUrl.'/classrooms/'.$this->create_classroom(), [
+            'title' => $this->faker->word,
+            'description' => $this->faker->sentence,
+            'subject' => $this->faker->randomElement(['Sains', 'Matematika', 'Bahasa', 'Teknologi', 'Sosial', 'Seni']),
+            'photo' => null
+        ]);
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    public function test_delete_classroom()
+    {
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+        ])->delete($this->baseUrl.'/classrooms/'.$this->create_classroom());
+
+        Log::info($response->getContent());
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    // Materials happy path tests
+    public function test_get_materials()
+    {
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+        ])->get($this->baseUrl.'/materials');
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('materials', $response->getContent());
+    }
+
+    public function test_get_material_by_id()
+    {
+        // Create new material
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+        ])->get($this->baseUrl.'/materials/'.$this->create_material());
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('material', $response->getContent());
+    }
+
+    public function test_update_material()
+    {
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+        ])->post($this->baseUrl.'/materials/'.$this->create_material(), [
+            'class_id' => $this->create_classroom(),
+            'title' => $this->faker->word,
+            'description' => $this->faker->sentence,
+            'file' => null,
+            // 'type' => $this->faker->randomElement(['assignment', 'material']),
+            'type' => 'assignment',
+            'deadline' => $this->faker->date
+        ]);
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    public function test_delete_material()
+    {
+        $response = $this->withHeaders([
+            'Accept' => 'application/json'
+        ])->delete($this->baseUrl.'/materials/'.$this->create_material());
+
+        $this->assertEquals(200, $response->getStatusCode());
     }
 }

@@ -16,11 +16,11 @@ return new class extends Migration
             $table->uuid('class_id');
             $table->string('title');
             $table->text('description');
-            $table->string('file');
+            $table->string('file')->nullable();
             $table->enum('type', ['assignment', 'material']);
-            $table->date('deadline');
+            $table->date('deadline')->nullable();
             $table->timestamps();
-            $table->foreign('class_id')->references('id')->on('classes');
+            $table->foreign('class_id')->references('id')->on('classes')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
