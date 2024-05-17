@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClassroomController;
+use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\UserController;
 // use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,5 +22,18 @@ Route::post('/v1/auth/oauth', [AuthController::class, 'oauth']);
 Route::post('/v1/classrooms', [ClassroomController::class, 'create']);
 Route::get('/v1/classrooms', [ClassroomController::class, 'read']);
 Route::get('/v1/classrooms/{id}', [ClassroomController::class, 'readById']);
-Route::put('/v1/classrooms/{id}', [ClassroomController::class, 'update']);
+Route::post('/v1/classrooms/{id}', [ClassroomController::class, 'update']);
 Route::delete('/v1/classrooms/{id}', [ClassroomController::class, 'delete']);
+
+// User REST API
+Route::get('/v1/users', [UserController::class, 'read']);
+Route::get('/v1/users/{id}', [UserController::class, 'readById']);
+Route::post('/v1/users/{id}', [UserController::class, 'update']);
+Route::delete('/v1/users/{id}', [UserController::class, 'delete']);
+
+// Material REST API
+Route::post('/v1/materials', [MaterialController::class, 'create']);
+Route::get('/v1/materials', [MaterialController::class, 'read']);
+Route::get('/v1/materials/{id}', [MaterialController::class, 'readById']);
+Route::post('/v1/materials/{id}', [MaterialController::class, 'update']);
+Route::delete('/v1/materials/{id}', [MaterialController::class, 'delete']);

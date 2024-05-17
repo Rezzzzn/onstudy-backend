@@ -126,7 +126,8 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'username' => 'required',
-            'password' => 'required'
+            'password' => 'required',
+            'method' => 'required|in:Google,Facebook,Twitter', // OAuth only available for third party, email method is not allowed
         ]);
 
         // Decide to register or login automatically
